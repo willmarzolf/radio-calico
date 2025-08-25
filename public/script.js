@@ -70,7 +70,7 @@ class RadioPlayer {
     }
     
     setupHLS() {
-        if (Hls.isSupported()) {
+        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
             this.hls = new Hls({
                 enableWorker: true,
                 lowLatencyMode: true,
@@ -443,10 +443,21 @@ class RadioPlayer {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initializePlayer() {
+    if (typeof Hls === 'undefined') {
+        setTimeout(initializePlayer, 100);
+        return;
+    }
+    
     const player = new RadioPlayer();
     
     window.addEventListener('beforeunload', () => {
         player.destroy();
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePlayer);
+} else {
+    initializePlayer();
+}

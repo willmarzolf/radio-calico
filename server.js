@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 const { Client: PostgresClient } = require('pg');
@@ -10,9 +11,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATABASE_TYPE = process.env.DATABASE_TYPE || 'sqlite';
 
+app.use(compression());
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// Configure static asset serving with caching headers
+app.use(express.static('public', {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
+    etag: true,
+    setHeaders: (res, path) => {
+        if (path.endsWith('.css') || path.endsWith('.js')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year for CSS/JS
+        } else if (path.endsWith('.jpg') || path.endsWith('.png') || path.endsWith('.svg')) {
+            res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days for images
+        }
+    }
+}));
 
 function getClientIP(req) {
     return req.headers['x-forwarded-for'] || 
