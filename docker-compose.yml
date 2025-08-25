@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  radiocalico-dev:
+    build:
+      context: .
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - radiocalico_data:/app/data
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - radiocalico-network
+
+volumes:
+  radiocalico_data:
+
+networks:
+  radiocalico-network:
+    driver: bridge

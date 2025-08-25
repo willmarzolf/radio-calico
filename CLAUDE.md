@@ -4,6 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
+### Native Development
 - `npm run dev` - Start development server with auto-reload (nodemon)
 - `npm start` - Start production server
 - `npm test` - Run all tests (backend + frontend)
@@ -12,6 +13,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run test:watch` - Run tests in watch mode for development
 - `npm run test:coverage` - Generate test coverage reports
 - Server runs on port 3000 by default (configurable via PORT environment variable)
+
+### Docker Development
+- `docker-compose up` - Start development environment with hot reload
+- `docker-compose -f docker-compose.prod.yml up` - Start production environment
+- `docker build --target development -t radiocalico:dev .` - Build development image
+- `docker build --target production -t radiocalico:prod .` - Build production image
 
 ## Architecture Overview
 
@@ -127,6 +134,39 @@ tests/
 - Both happy path and error scenarios are covered
 - API mocking prevents external dependencies during testing
 - Database tests use transactions for complete isolation
+
+## Docker Containerization
+
+The project includes comprehensive Docker support for both development and production deployments.
+
+### Docker Architecture
+- **Multi-stage Dockerfile** with separate development and production targets
+- **Development stage** includes all dependencies and supports hot reload via volume mounting
+- **Production stage** uses optimized builds with only production dependencies
+- **Security hardening** with non-root user execution and resource limits
+
+### Docker Files
+- `Dockerfile` - Multi-stage build configuration
+- `docker-compose.yml` - Development environment with hot reload
+- `docker-compose.prod.yml` - Production deployment with resource constraints
+- `.dockerignore` - Optimized build context excluding unnecessary files
+
+### Container Features
+- **Persistent storage** - Database persisted via Docker volumes at `/app/data`
+- **Health checks** - Built-in container health monitoring
+- **Resource limits** - Production containers limited to 1 CPU and 512MB RAM
+- **Port mapping** - Application accessible on host port 3000
+- **Volume mounting** - Development containers support live code updates
+
+### Deployment Options
+- **Development**: `docker-compose up` - Full development environment with nodemon
+- **Production**: `docker-compose -f docker-compose.prod.yml up` - Optimized production deployment
+- **Standalone**: Direct `docker run` commands for custom deployments
+- **Optional nginx**: Production compose includes nginx reverse proxy profile
+
+### Docker Environment Variables
+- `NODE_ENV` - Set to `development` or `production`
+- `PORT` - Server port (defaults to 3000)
 
 ## important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

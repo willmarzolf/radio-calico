@@ -18,8 +18,11 @@ A live radio streaming application with real-time track metadata and user rating
 - **Database**: SQLite with track ratings storage
 - **Streaming**: HLS (HTTP Live Streaming)
 - **Testing**: Jest, Supertest, jsdom
+- **Deployment**: Docker, Docker Compose
 
 ## Quick Start
+
+### Option 1: Native Development
 
 1. Install dependencies:
    ```bash
@@ -33,11 +36,35 @@ A live radio streaming application with real-time track metadata and user rating
 
 3. Open your browser to `http://localhost:3000`
 
+### Option 2: Docker Development
+
+1. Start the development environment:
+   ```bash
+   docker-compose up
+   ```
+
+2. Open your browser to `http://localhost:3000`
+
+### Option 3: Docker Production
+
+1. Start the production environment:
+   ```bash
+   docker-compose -f docker-compose.prod.yml up
+   ```
+
+2. Open your browser to `http://localhost:3000`
+
 ## Commands
 
-### Development
+### Native Development
 - `npm run dev` - Start development server with auto-reload
 - `npm start` - Start production server
+
+### Docker Development
+- `docker-compose up` - Start development environment with hot reload
+- `docker-compose -f docker-compose.prod.yml up` - Start production environment
+- `docker build --target development -t radiocalico:dev .` - Build development image
+- `docker build --target production -t radiocalico:prod .` - Build production image
 
 ### Testing
 - `npm test` - Run all tests (78 tests total)
@@ -125,9 +152,57 @@ npm run test:coverage
 - Metadata processing and caching
 - Rating button state management
 
+## Docker Deployment
+
+Radio Calico includes comprehensive Docker support for both development and production environments.
+
+### Docker Features
+- **Multi-stage builds** - Separate optimized images for development and production
+- **Persistent storage** - Database data preserved in Docker volumes
+- **Security hardening** - Non-root user execution with resource limits
+- **Health checks** - Built-in container monitoring
+- **Hot reload** - Development containers support live code updates
+
+### Production Deployment
+```bash
+# Build and start production containers
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Stop containers
+docker-compose -f docker-compose.prod.yml down
+```
+
+### Development with Docker
+```bash
+# Start development environment
+docker-compose up
+
+# Rebuild containers after dependency changes
+docker-compose up --build
+
+# Run commands in running container
+docker-compose exec radiocalico-dev npm test
+```
+
+### Standalone Docker Usage
+```bash
+# Development
+docker run -p 3000:3000 -v $(pwd):/app radiocalico:dev
+
+# Production
+docker run -p 3000:3000 radiocalico:prod
+```
+
 ## Configuration
 
 The server runs on port 3000 by default. You can change this by setting the `PORT` environment variable.
+
+### Environment Variables
+- `NODE_ENV` - Set to `development` or `production`
+- `PORT` - Server port (defaults to 3000)
 
 ## License
 
