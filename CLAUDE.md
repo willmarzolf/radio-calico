@@ -1,0 +1,88 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Development Commands
+
+- `npm run dev` - Start development server with auto-reload (nodemon)
+- `npm start` - Start production server
+- Server runs on port 3000 by default (configurable via PORT environment variable)
+
+## Architecture Overview
+
+This is a live radio streaming application with real-time track metadata and user ratings.
+
+### Backend Architecture (server.js)
+- **Express.js API server** serving both static files and REST endpoints
+- **SQLite database** (`database.db`) with single table `track_ratings` storing user votes
+- **User identification** via IP address hashing (no authentication required)
+- **Rating system** supports thumbs up (+1) and thumbs down (-1) with vote changing capability
+
+### Frontend Architecture
+- **Single-page application** (`public/index.html`) with vanilla JavaScript
+- **HLS.js integration** for live audio streaming from CloudFront CDN
+- **Real-time metadata fetching** every 30 seconds from external JSON endpoint
+- **CSS architecture** split into:
+  - `settings.css` - CSS custom properties (variables) for theming
+  - `style.css` - Main styles that reference the variables via `@import`
+
+### Key Components
+
+**RadioPlayer class (public/script.js)**:
+- Manages HLS audio stream, volume controls, play/pause
+- Handles track metadata updates and album art display
+- Implements rating system with visual feedback
+- Generates unique track IDs from title/artist for rating persistence
+
+**Rating System**:
+- Users can vote thumbs up/down and change their votes anytime
+- Backend uses `INSERT OR REPLACE` for vote updates
+- Frontend tracks user's current vote state with visual indicators
+- Vote counts displayed in real-time
+
+### Database Schema
+```sql
+track_ratings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  track_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating IN (1, -1)),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(track_id, user_id)
+)
+```
+
+### API Endpoints
+- `GET /api/ratings/:trackId` - Get vote counts for a track
+- `GET /api/user-rating/:trackId` - Get current user's vote for a track  
+- `POST /api/ratings` - Submit or change a vote (body: {trackId, rating})
+
+### Styling System
+The CSS uses a comprehensive variable system in `settings.css` with organized categories:
+- Colors (backgrounds, text, accents, borders, states)
+- Typography (fonts, sizes, weights)
+- Spacing (padding, margins, gaps)
+- Sizing (component dimensions)
+- Border radius and box shadows
+- Transitions and opacity values
+
+### External Dependencies
+- **HLS streaming**: `https://d3d4yli4hf5bmh.cloudfront.net/hls/live.m3u8`
+- **Metadata API**: `https://d3d4yli4hf5bmh.cloudfront.net/metadatav2.json`
+- **Album art**: `https://d3d4yli4hf5bmh.cloudfront.net/cover.jpg`
+
+## Important Implementation Details
+
+- Track IDs are generated client-side using base64 encoding of lowercase "title|artist"
+- User IDs are SHA256 hashes of client IP addresses (first 16 characters)
+- The application supports changing ratings (no "you already voted" restrictions)
+- Album art updates with cache-busting timestamps
+- Responsive design with mobile breakpoint at 480px
+- No authentication system - relies on IP-based user identification
+- Error handling includes HLS error recovery and graceful metadata fetch failures
+
+## important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

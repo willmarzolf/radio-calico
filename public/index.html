@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Calico - Online Radio Player</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Radio Calico</h1>
+            <p>Streaming live lossless audio</p>
+        </header>
+        
+        <div class="player-container">
+            <audio 
+                id="radioPlayer" 
+                preload="none"
+                crossorigin="anonymous"
+                style="display: none;">
+                Your browser does not support the audio element.
+            </audio>
+            
+            <div class="player-controls">
+                <button id="playPauseBtn" class="control-btn">
+                    <span class="play-icon">▶</span>
+                    <span class="pause-icon" style="display: none;">⏸</span>
+                </button>
+                <div class="time-container">
+                    <span id="elapsedTime">00:00</span>
+                </div>
+                <div class="volume-container">
+                    <label for="volumeSlider">Volume:</label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50" class="volume-slider">
+                    <span id="volumeValue">50%</span>
+                </div>
+            </div>
+            
+            <div class="stream-info">
+                <div class="status" id="streamStatus">Ready to play</div>
+                <div class="stream-url">Stream: https://d3d4yli4hf5bmh.cloudfront.net/hls/live.m3u8</div>
+            </div>
+        </div>
+        
+        <div class="now-playing-container">
+            <div class="now-playing">
+                <h3>Now Playing</h3>
+                <div id="currentTrack" class="track-info">
+                    <img id="currentAlbumArt" class="album-art" src="" alt="Album Art" style="display: none;">
+                    <div class="track-details">
+                        <div class="track-title">Loading...</div>
+                        <div class="track-artist">-</div>
+                        <div class="track-album">-</div>
+                        <div class="track-ratings">
+                            <div class="rating-buttons">
+                                <button id="thumbsUpBtn" class="rating-btn thumbs-up" title="Like this track">
+                                    <span class="icon">👍</span>
+                                    <span id="thumbsUpCount" class="count">0</span>
+                                </button>
+                                <button id="thumbsDownBtn" class="rating-btn thumbs-down" title="Dislike this track">
+                                    <span class="icon">👎</span>
+                                    <span id="thumbsDownCount" class="count">0</span>
+                                </button>
+                            </div>
+                            <div id="ratingStatus" class="rating-status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recently-played-container">
+            <h3>Recently Played</h3>
+            <div id="recentTracks" class="recent-tracks">
+                <div class="loading-tracks">Loading recent tracks...</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Powered by HLS.js for seamless streaming</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
