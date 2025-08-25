@@ -20,13 +20,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docker build --target development -t radiocalico:dev .` - Build development image
 - `docker build --target production -t radiocalico:prod .` - Build production image
 
+### Script-based Development (Cross-platform)
+- `./scripts.sh dev` (Unix/Linux/Mac) or `scripts dev` (Windows) - Start development server
+- `./scripts.sh prod` (Unix/Linux/Mac) or `scripts prod` (Windows) - Start production environment
+- `./scripts.sh test` (Unix/Linux/Mac) or `scripts test` (Windows) - Run all tests
+- `./scripts.sh help` (Unix/Linux/Mac) or `scripts help` (Windows) - Show all available commands
+
 ## Architecture Overview
 
 This is a live radio streaming application with real-time track metadata and user ratings.
 
 ### Backend Architecture (server.js)
 - **Express.js API server** serving both static files and REST endpoints
-- **SQLite database** (`database.db`) with single table `track_ratings` storing user votes
+- **Multi-database support** - SQLite for development, PostgreSQL for production
+- **Database abstraction layer** with environment-based switching via `DATABASE_TYPE`
 - **User identification** via IP address hashing (no authentication required)
 - **Rating system** supports thumbs up (+1) and thumbs down (-1) with vote changing capability
 
@@ -53,6 +60,8 @@ This is a live radio streaming application with real-time track metadata and use
 - Vote counts displayed in real-time
 
 ### Database Schema
+
+**SQLite (Development)**:
 ```sql
 track_ratings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,6 +69,18 @@ track_ratings (
   user_id TEXT NOT NULL,
   rating INTEGER NOT NULL CHECK (rating IN (1, -1)),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(track_id, user_id)
+)
+```
+
+**PostgreSQL (Production)**:
+```sql
+track_ratings (
+  id SERIAL PRIMARY KEY,
+  track_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating IN (1, -1)),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(track_id, user_id)
 )
 ```
@@ -152,21 +173,79 @@ The project includes comprehensive Docker support for both development and produ
 - `.dockerignore` - Optimized build context excluding unnecessary files
 
 ### Container Features
-- **Persistent storage** - Database persisted via Docker volumes at `/app/data`
+- **Persistent storage** - SQLite in `/app/data` (dev), PostgreSQL volume (prod)
 - **Health checks** - Built-in container health monitoring
-- **Resource limits** - Production containers limited to 1 CPU and 512MB RAM
-- **Port mapping** - Application accessible on host port 3000
+- **Resource limits** - Production containers with CPU/memory constraints
+- **nginx reverse proxy** - Production routing with rate limiting and security headers
 - **Volume mounting** - Development containers support live code updates
 
-### Deployment Options
-- **Development**: `docker-compose up` - Full development environment with nodemon
-- **Production**: `docker-compose -f docker-compose.prod.yml up` - Optimized production deployment
-- **Standalone**: Direct `docker run` commands for custom deployments
-- **Optional nginx**: Production compose includes nginx reverse proxy profile
+### Production Architecture
+```
+Internet → nginx (Port 80/443) → Node.js App → PostgreSQL
+```
 
-### Docker Environment Variables
+### Development Architecture
+```
+Direct Access → Node.js App (Port 3000) → SQLite
+```
+
+### Deployment Options
+- **Development**: `docker-compose up` - SQLite + direct Node.js access
+- **Production**: `docker-compose -f docker-compose.prod.yml up` - PostgreSQL + nginx + Node.js
+- **Script-based**: `./scripts.sh prod` or `scripts prod` - Cross-platform production deployment
+
+### Environment Variables
 - `NODE_ENV` - Set to `development` or `production`
+- `DATABASE_TYPE` - Set to `sqlite` (default) or `postgres`
 - `PORT` - Server port (defaults to 3000)
+- `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` - PostgreSQL connection
+
+## Build Automation Scripts
+
+The project includes cross-platform automation scripts for easy project management.
+
+### Available Scripts
+- `scripts.sh` - Unix/Linux/Mac shell script
+- `scripts.bat` - Windows batch script
+
+### Script Commands
+- **Development**: `dev`, `dev-docker`, `install`
+- **Production**: `prod`, `prod-build`, `prod-up`, `prod-down`
+- **Testing**: `test`, `test-backend`, `test-frontend`, `test-coverage`
+- **Management**: `status`, `logs`, `stop`, `clean`
+
+### Usage Examples
+```bash
+# Unix/Linux/Mac
+./scripts.sh prod        # Start production environment
+./scripts.sh test        # Run all 78 tests
+./scripts.sh status      # Check container status
+
+# Windows
+scripts prod             # Start production environment
+scripts test             # Run all 78 tests
+scripts status           # Check container status
+```
+
+### nginx Configuration
+
+Production deployment includes a comprehensive nginx reverse proxy with:
+
+#### Security Features
+- Rate limiting (API: 10 req/s, General: 50 req/s)
+- Security headers (X-Frame-Options, X-Content-Type-Options, etc.)
+- Request size limits and timeouts
+
+#### Performance Features
+- Gzip compression for text assets
+- Static asset caching with 1-year expiration
+- HTTP/2 support (when SSL is enabled)
+- Connection keep-alive and upstream pooling
+
+#### Routing
+- `/api/*` - Proxied to Node.js backend with rate limiting
+- `/` - Static files and application routes proxied to Node.js
+- `/health` - nginx health check endpoint
 
 ## important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
