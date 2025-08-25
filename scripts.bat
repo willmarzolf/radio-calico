@@ -14,6 +14,9 @@ if "%1"=="test" goto test
 if "%1"=="test-backend" goto test-backend
 if "%1"=="test-frontend" goto test-frontend
 if "%1"=="test-coverage" goto test-coverage
+if "%1"=="security" goto security
+if "%1"=="security-audit" goto security-audit
+if "%1"=="security-fix" goto security-fix
 if "%1"=="install" goto install
 if "%1"=="status" goto status
 if "%1"=="logs" goto logs
@@ -42,6 +45,11 @@ echo   scripts test         - Run all tests
 echo   scripts test-backend - Run backend tests only
 echo   scripts test-frontend - Run frontend tests only
 echo   scripts test-coverage - Generate coverage report
+echo.
+echo Security:
+echo   scripts security       - Run comprehensive security scan
+echo   scripts security-audit - Run npm audit only
+echo   scripts security-fix   - Auto-fix security vulnerabilities
 echo.
 echo Management:
 echo   scripts status - Show container status
@@ -104,6 +112,22 @@ goto end
 :test-coverage
 echo Generating test coverage...
 npm run test:coverage
+goto end
+
+:security
+echo Running comprehensive security scan...
+bash security-scan.sh
+goto end
+
+:security-audit
+echo Running npm audit...
+npm audit
+goto end
+
+:security-fix
+echo Auto-fixing security vulnerabilities...
+npm audit fix
+echo Security fixes applied
 goto end
 
 :status

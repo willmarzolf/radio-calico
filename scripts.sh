@@ -30,6 +30,11 @@ case "$1" in
         echo "  ./scripts.sh test-frontend - Run frontend tests only"
         echo "  ./scripts.sh test-coverage - Generate coverage report"
         echo ""
+        echo -e "${GREEN}Security:${RESET}"
+        echo "  ./scripts.sh security       - Run comprehensive security scan"
+        echo "  ./scripts.sh security-audit - Run npm audit only"
+        echo "  ./scripts.sh security-fix   - Auto-fix security vulnerabilities"
+        echo ""
         echo -e "${GREEN}Management:${RESET}"
         echo "  ./scripts.sh status - Show container status"
         echo "  ./scripts.sh logs   - Show container logs"
@@ -83,6 +88,19 @@ case "$1" in
     "test-coverage")
         echo -e "${CYAN}Generating test coverage...${RESET}"
         npm run test:coverage
+        ;;
+    "security")
+        echo -e "${CYAN}Running comprehensive security scan...${RESET}"
+        ./security-scan.sh
+        ;;
+    "security-audit")
+        echo -e "${CYAN}Running npm audit...${RESET}"
+        npm audit
+        ;;
+    "security-fix")
+        echo -e "${CYAN}Auto-fixing security vulnerabilities...${RESET}"
+        npm audit fix
+        echo -e "${GREEN}Security fixes applied${RESET}"
         ;;
     "status")
         echo -e "${CYAN}Container Status:${RESET}"
