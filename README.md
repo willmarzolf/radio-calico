@@ -17,6 +17,7 @@ A live radio streaming application with real-time track metadata and user rating
 - **Frontend**: Vanilla JavaScript, HLS.js
 - **Database**: SQLite with track ratings storage
 - **Streaming**: HLS (HTTP Live Streaming)
+- **Testing**: Jest, Supertest, jsdom
 
 ## Quick Start
 
@@ -34,8 +35,16 @@ A live radio streaming application with real-time track metadata and user rating
 
 ## Commands
 
+### Development
 - `npm run dev` - Start development server with auto-reload
 - `npm start` - Start production server
+
+### Testing
+- `npm test` - Run all tests (78 tests total)
+- `npm run test:backend` - Run backend tests only (47 tests)
+- `npm run test:frontend` - Run frontend tests only (31 tests)
+- `npm run test:watch` - Run tests in watch mode for development
+- `npm run test:coverage` - Generate test coverage reports
 
 ## Architecture
 
@@ -74,6 +83,47 @@ track_ratings (
 - **HLS Stream**: `https://d3d4yli4hf5bmh.cloudfront.net/hls/live.m3u8`
 - **Metadata API**: `https://d3d4yli4hf5bmh.cloudfront.net/metadatav2.json`
 - **Album Art**: `https://d3d4yli4hf5bmh.cloudfront.net/cover.jpg`
+
+## Testing
+
+Radio Calico includes a comprehensive testing suite with **78 tests** covering both backend and frontend functionality.
+
+### Test Structure
+- **Backend Tests (47 tests)**: API endpoints, database operations, IP handling, validation
+- **Frontend Tests (31 tests)**: Track ID generation, metadata processing, rating system logic
+- **Integration Tests**: Complete API workflows with HTTP requests
+- **Unit Tests**: Pure function testing without side effects
+
+### Testing Technologies
+- **Jest** - Testing framework with multi-project configuration
+- **Supertest** - HTTP assertion testing for Express APIs
+- **jsdom** - DOM testing environment for frontend tests
+- **In-memory SQLite** - Isolated database testing
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run specific test suites
+npm run test:backend
+npm run test:frontend
+
+# Development mode
+npm run test:watch
+
+# Coverage reports
+npm run test:coverage
+```
+
+### Key Features Tested
+- Rating API endpoints (GET/POST operations)
+- User identification from IP addresses
+- Database vote storage and updates
+- Input validation and error handling
+- Track ID generation consistency
+- Metadata processing and caching
+- Rating button state management
 
 ## Configuration
 

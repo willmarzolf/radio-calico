@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` - Start development server with auto-reload (nodemon)
 - `npm start` - Start production server
+- `npm test` - Run all tests (backend + frontend)
+- `npm run test:backend` - Run backend tests only
+- `npm run test:frontend` - Run frontend tests only
+- `npm run test:watch` - Run tests in watch mode for development
+- `npm run test:coverage` - Generate test coverage reports
 - Server runs on port 3000 by default (configurable via PORT environment variable)
 
 ## Architecture Overview
@@ -80,6 +85,48 @@ The CSS uses a comprehensive variable system in `settings.css` with organized ca
 - Responsive design with mobile breakpoint at 480px
 - No authentication system - relies on IP-based user identification
 - Error handling includes HLS error recovery and graceful metadata fetch failures
+
+## Testing Framework
+
+The project includes a comprehensive testing suite with 78 tests covering both backend and frontend functionality.
+
+### Test Structure
+```
+tests/
+├── backend/
+│   ├── unit/           # Unit tests for individual functions
+│   ├── integration/    # API endpoint integration tests
+│   └── helpers/        # Test utilities and database setup
+└── frontend/
+    ├── unit/           # Frontend logic and component tests
+    └── mocks/          # Mock objects and API responses
+```
+
+### Testing Technologies
+- **Jest** - Primary testing framework with multi-project configuration
+- **Supertest** - HTTP assertion testing for Express.js APIs
+- **jsdom** - DOM testing environment for frontend tests
+- **In-memory SQLite** - Isolated database testing
+
+### Test Coverage
+- **Backend Tests (47 tests)**: API endpoints, database operations, IP handling, input validation
+- **Frontend Tests (31 tests)**: Track ID generation, metadata processing, rating system logic
+- **Integration Tests**: Complete API workflows with real HTTP requests
+- **Unit Tests**: Pure function testing without side effects
+
+### Key Test Files
+- `tests/backend/integration/ratings-api.test.js` - Complete API testing
+- `tests/backend/unit/database.test.js` - SQLite operations and schema validation
+- `tests/frontend/unit/track-id.test.js` - Track ID generation consistency
+- `tests/frontend/unit/ratings.test.js` - Rating system logic and validation
+- `tests/frontend/unit/metadata.test.js` - Metadata processing and error handling
+
+### Testing Best Practices
+- All tests use isolated environments (in-memory database, mocked APIs)
+- Tests are fast-running and can be executed frequently during development
+- Both happy path and error scenarios are covered
+- API mocking prevents external dependencies during testing
+- Database tests use transactions for complete isolation
 
 ## important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
