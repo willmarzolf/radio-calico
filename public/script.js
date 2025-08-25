@@ -31,10 +31,31 @@ class RadioPlayer {
     
     init() {
         this.setupEventListeners();
-        this.setupHLS();
         this.updateVolumeDisplay();
         this.updateElapsedTime();
         this.startMetadataUpdates();
+        
+        // Setup HLS after ensuring library is loaded
+        this.waitForHLS().then(() => {
+            this.setupHLS();
+        });
+    }
+    
+    waitForHLS() {
+        return new Promise((resolve) => {
+            if (typeof Hls !== 'undefined') {
+                resolve();
+            } else {
+                const checkHLS = () => {
+                    if (typeof Hls !== 'undefined') {
+                        resolve();
+                    } else {
+                        setTimeout(checkHLS, 50);
+                    }
+                };
+                checkHLS();
+            }
+        });
     }
     
     setupEventListeners() {
@@ -444,11 +465,6 @@ class RadioPlayer {
 }
 
 function initializePlayer() {
-    if (typeof Hls === 'undefined') {
-        setTimeout(initializePlayer, 100);
-        return;
-    }
-    
     const player = new RadioPlayer();
     
     window.addEventListener('beforeunload', () => {
